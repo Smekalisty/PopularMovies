@@ -1,0 +1,15 @@
+<resources>
+    <string name="application_name">Popular Movies</string>
+    <string name="popular_movies">@string/application_name</string>
+    <string name="favorite_movies">Favorite Movies</string>
+    <string name="no_movies">No movies</string>
+    <string name="an_error_has_occurred">An error has occurred</string>
+    <string name="probably_no_connection">Probably no connection</string>
+    <string name="homepage">homepage</string>
+    <string name="popular">popular</string>
+    <string name="favorite">favorite</string>
+    <string name="votes">%1$s votes</string>
+    <string name="budget">Budget %1$s chocolates</string>
+    <string name="release_date">Release Date %1$s</string>
+    <string name="movie_page_has_not_loaded_yet">Movie page has not loaded yet</string>
+</resources>
