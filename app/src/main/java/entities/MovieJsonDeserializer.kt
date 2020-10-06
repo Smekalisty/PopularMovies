@@ -10,6 +10,6 @@ import java.lang.reflect.Type
 class MovieJsonDeserializer : JsonDeserializer<List<Movie>> {
     override fun deserialize(json: JsonElement?, type: Type?, context: JsonDeserializationContext?): List<Movie> {
         val jsonElement = json?.asJsonObject?.get("results")
-        return Gson().fromJson<List<Movie>>(jsonElement, type)
+        return Gson().fromJson(jsonElement, type)
     }
 }
