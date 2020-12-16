@@ -23,7 +23,9 @@ class MoviesDataSource(private val webAPI: WebAPI, private val disposables: Comp
         val disposable = webAPI
             .requestPopularMovies(params.key, WebConstants.apiKey)
             .compose(RxManager.singleTransformer())
-            .subscribe({ callback.onResult(it, params.key + 1) }, onError)
+            .subscribe({
+                callback.onResult(it, params.key + 1)
+            }, onError)
 
         disposables.add(disposable)
     }

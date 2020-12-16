@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,7 +6,7 @@
     android:clickable="true"
     android:focusable="true">
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/backdrop"
         android:layout_width="0dp"
         android:layout_height="192dp"
@@ -16,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <com.google.android.material.circularreveal.CircularRevealLinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -25,7 +24,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,10 +32,10 @@
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
             android:singleLine="true"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:textColor="@android:color/white" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/overview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,7 +43,7 @@
             android:layout_marginEnd="@dimen/default_margin"
             android:layout_marginBottom="4dp"
             android:singleLine="true"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
             android:textColor="@android:color/white" />
 
         <com.google.android.material.circularreveal.CircularRevealRelativeLayout
@@ -54,13 +53,13 @@
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginBottom="@dimen/default_margin">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/voteCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 android:layout_centerVertical="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
                 android:textColor="@android:color/white" />
 
             <androidx.appcompat.widget.AppCompatRatingBar
@@ -70,7 +69,6 @@
                 android:numStars="10"
                 android:stepSize="0.1"
                 android:isIndicator="true"
-                android:theme="@style/RatingBarTheme"
                 android:layout_toEndOf="@+id/voteCount"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/default_margin"
@@ -78,6 +76,6 @@
 
         </com.google.android.material.circularreveal.CircularRevealRelativeLayout>
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </com.google.android.material.circularreveal.CircularRevealLinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

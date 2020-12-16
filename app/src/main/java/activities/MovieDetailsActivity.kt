@@ -9,14 +9,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatRatingBar
-import androidx.appcompat.widget.AppCompatTextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textview.MaterialTextView
 import com.popularmovies.R
 import entities.WebConstants
 import entities.helpers.Preference
@@ -34,15 +34,15 @@ class MovieDetailsActivity : AppCompatActivity() {
         const val extraMovie = "extraMovie"
     }
 
-    private var title: AppCompatTextView? = null
-    private var voteCount: AppCompatTextView? = null
+    private var title: MaterialTextView? = null
+    private var voteCount: MaterialTextView? = null
     private var voteAverage: AppCompatRatingBar? = null
-    private var overview: AppCompatTextView? = null
-    private var tagLine: AppCompatTextView? = null
-    private var releaseDate: AppCompatTextView? = null
-    private var budget: AppCompatTextView? = null
-    private var homepage: AppCompatButton? = null
-    private var poster: AppCompatImageView? = null
+    private var overview: MaterialTextView? = null
+    private var tagLine: MaterialTextView? = null
+    private var releaseDate: MaterialTextView? = null
+    private var budget: MaterialTextView? = null
+    private var homepage: MaterialButton? = null
+    private var poster: ShapeableImageView? = null
 
     private var disposables = CompositeDisposable()
     private var isFavorite: Boolean? = null

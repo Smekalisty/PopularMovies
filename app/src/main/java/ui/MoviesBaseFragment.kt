@@ -16,10 +16,10 @@ import entities.pojo.Movie
 import entities.helpers.SpaceItemDecoration
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
-import kotlinx.android.synthetic.main.layout_movies.*
 import java.net.UnknownHostException
 
 abstract class MoviesBaseFragment : Fragment() {
+    private var recyclerView: RecyclerView? = null
     private var refresh: SwipeRefreshLayout? = null
     private var infoLayout: View? = null
     protected var disposables = CompositeDisposable()
@@ -42,7 +42,7 @@ abstract class MoviesBaseFragment : Fragment() {
         val disposable = clickSubject.subscribe(::onSelected, ::onError)
         disposables.add(disposable)
 
-        view.findViewById<RecyclerView>(R.id.recyclerView).apply {
+        recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView).apply {
             addItemDecoration(SpaceItemDecoration(view.context))
             layoutManager = LinearLayoutManager(view.context)
             setAdapter(this)

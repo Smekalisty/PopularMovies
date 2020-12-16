@@ -1,7 +1,7 @@
 package ui.popular
 
 import android.content.Intent
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import com.popularmovies.R
@@ -20,7 +20,7 @@ class MoviesPopularFragment : MoviesBaseFragment() {
     }
 
     override fun requestDataSource() {
-        ViewModelProviders.of(this)
+        ViewModelProvider(this)
             .get(MoviesViewModel::class.java)
             .loadDataSource(::onPagedListReady, ::onInitialDataSourceLoaded, ::onError)
     }
