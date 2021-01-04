@@ -1,0 +1,16 @@
+<resources>
+    <style name="ApplicationTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">#FEDBD0</item>
+        <item name="colorPrimaryDark">#FFC2AF</item>
+        <item name="colorPrimaryVariant">#FBB8AC</item>
+        <item name="colorSecondary">#FEEAE6</item>
+        <item name="colorSurface">#FFFBFA</item>
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="colorError">#C5032B</item>
+        <item name="colorOnPrimary">#442B2D</item>
+        <item name="colorOnSecondary">#442B2D</item>
+        <item name="colorOnSurface">#442B2D</item>
+        <item name="colorOnError">#FFFBFA</item>
+        <item name="colorOnBackground">#442B2D</item>
+    </style>
+</resources>

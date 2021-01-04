@@ -1,15 +1,14 @@
-package ui.favorite
+package ui.main.popular
 
 import android.view.ViewGroup
+import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import ui.main.base.ViewHolder
 import entities.pojo.Movie
-import entities.pojo.MovieDetails
 import io.reactivex.subjects.PublishSubject
-import ui.MovieAdapterExecutor
-import ui.ViewHolder
+import ui.main.base.MovieAdapterExecutor
 
-class Adapter(private val clickSubject: PublishSubject<Movie>) : ListAdapter<MovieDetails, ViewHolder>(config) {
+class Adapter(private val clickSubject: PublishSubject<Movie>) : PagedListAdapter<Movie, ViewHolder>(config) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return MovieAdapterExecutor().onCreateViewHolder(parent)
     }
@@ -20,9 +19,9 @@ class Adapter(private val clickSubject: PublishSubject<Movie>) : ListAdapter<Mov
     }
 
     companion object {
-        private val config = object : DiffUtil.ItemCallback<MovieDetails>() {
-            override fun areItemsTheSame(old: MovieDetails, new: MovieDetails) = old.id == new.id
-            override fun areContentsTheSame(old: MovieDetails, new: MovieDetails) = true
+        private val config = object : DiffUtil.ItemCallback<Movie>() {
+            override fun areItemsTheSame(old: Movie, new: Movie) = old.id == new.id
+            override fun areContentsTheSame(old: Movie, new: Movie) = old.hashCode() == new.hashCode()
         }
     }
 }

@@ -1,14 +1,16 @@
-package ui.favorite
+package ui.main.favorite
 
 import android.app.Activity
 import android.content.Intent
+import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.popularmovies.R
 import entities.helpers.Preference
 import entities.helpers.RxManager
 import entities.pojo.MovieDetails
 import io.reactivex.Single
-import ui.MoviesBaseFragment
+import ui.main.base.MoviesBaseFragment
 
 class MoviesFavoriteFragment : MoviesBaseFragment() {
     private var adapter: Adapter? = null
@@ -29,8 +31,9 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
         disposables.add(disposable)
     }
 
-    override fun startMovieDetailsActivity(intent: Intent) {
-        startActivityForResult(intent, requestCode)
+    override fun showTopLevelFragment(fragment: Fragment) {
+        requireActivity().supportFragmentManager.beginTransaction().add(R.id.main, fragment).addToBackStack(null).commit()
+        //TODO requestCode
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -1,7 +1,5 @@
-package ui
+package ui.main.base
 
-import activities.MovieDetailsActivity
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +14,7 @@ import entities.pojo.Movie
 import entities.helpers.SpaceItemDecoration
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import ui.details.MovieDetailsFragment
 import java.net.UnknownHostException
 
 abstract class MoviesBaseFragment : Fragment() {
@@ -64,7 +63,7 @@ abstract class MoviesBaseFragment : Fragment() {
 
     abstract fun requestDataSource()
 
-    abstract fun startMovieDetailsActivity(intent: Intent)
+    abstract fun showTopLevelFragment(fragment: Fragment)
 
     protected fun getClickSubject(): PublishSubject<Movie> {
         val clickSubject = PublishSubject.create<Movie>()
@@ -106,9 +105,11 @@ abstract class MoviesBaseFragment : Fragment() {
     }
 
     private fun onSelected(movie: Movie) {
-        val context = context ?: return
-        val intent = Intent(context, MovieDetailsActivity::class.java)
-        intent.putExtra(MovieDetailsActivity.extraMovie, movie)
-        startMovieDetailsActivity(intent)
+        val bundle = Bundle()
+        bundle.putParcelable(MovieDetailsFragment.extraMovie, movie)
+        val movieDetailsFragment = MovieDetailsFragment()
+        movieDetailsFragment.arguments = bundle
+
+        showTopLevelFragment(movieDetailsFragment)
     }
 }

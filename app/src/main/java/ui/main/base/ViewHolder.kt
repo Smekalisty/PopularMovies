@@ -1,4 +1,4 @@
-package ui
+package ui.main.base
 
 import android.view.View
 import android.widget.RatingBar

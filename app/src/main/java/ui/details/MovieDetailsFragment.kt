@@ -1,15 +1,13 @@
-package activities
+package ui.details
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatRatingBar
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -29,7 +27,7 @@ import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import java.net.UnknownHostException
 
-class MovieDetailsActivity : AppCompatActivity() {
+class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
     companion object {
         const val extraMovie = "extraMovie"
     }
@@ -48,28 +46,23 @@ class MovieDetailsActivity : AppCompatActivity() {
     private var isFavorite: Boolean? = null
     private var movieDetails: MovieDetails? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_movie_details)
-
-        title = findViewById(R.id.title)
-        voteCount = findViewById(R.id.voteCount)
-        voteAverage = findViewById(R.id.voteAverage)
-        overview = findViewById(R.id.overview)
-        tagLine = findViewById(R.id.tagLine)
-        releaseDate = findViewById(R.id.releaseDate)
-        budget = findViewById(R.id.budget)
-        homepage = findViewById(R.id.homepage)
-        poster = findViewById(R.id.poster)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        title = view.findViewById(R.id.title)
+        voteCount = view.findViewById(R.id.voteCount)
+        voteAverage = view.findViewById(R.id.voteAverage)
+        overview = view.findViewById(R.id.overview)
+        tagLine = view.findViewById(R.id.tagLine)
+        releaseDate = view.findViewById(R.id.releaseDate)
+        budget = view.findViewById(R.id.budget)
+        homepage = view.findViewById(R.id.homepage)
+        poster = view.findViewById(R.id.poster)
 
         tagLine?.visibility = View.GONE
         releaseDate?.visibility = View.GONE
         budget?.visibility = View.GONE
         homepage?.visibility = View.GONE
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        val movie = intent.getParcelableExtra<Parcelable>(extraMovie)
+        val movie = arguments?.getParcelable<Parcelable>(extraMovie)
         if (movie is MovieDetails) {
             populateBody(movie)
             return
@@ -85,7 +78,7 @@ class MovieDetailsActivity : AppCompatActivity() {
         showMessage(getString(R.string.an_error_has_occurred))
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    /*override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         isFavorite?.let {
             menuInflater.inflate(R.menu.movie_menu, menu)
 
@@ -111,7 +104,7 @@ class MovieDetailsActivity : AppCompatActivity() {
         }
 
         return false
-    }
+    }*/
 
     override fun onDestroy() {
         disposables.dispose()
@@ -129,7 +122,7 @@ class MovieDetailsActivity : AppCompatActivity() {
     }
 
     private fun populateHead(movie: Movie) {
-        setTitle(movie.title)
+        //setTitle(movie.title)
 
         title?.text = movie.title
         voteCount?.text = getString(R.string.votes, movie.voteCount.toString())
@@ -199,12 +192,15 @@ class MovieDetailsActivity : AppCompatActivity() {
     }
 
     private fun showMessage(message: String) {
-        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show()
+        val view = view ?: return
+        Snackbar.make(view.findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show()
     }
 
     private fun setupFavorite(id: Int) {
+        val context = context ?: return
+
         fun start(id: Int): Wrap<MovieDetails> {
-            val favoriteMovies = Preference.getFavoriteMovies(this)
+            val favoriteMovies = Preference.getFavoriteMovies(context)
             val movieDetails = favoriteMovies.firstOrNull { it.id == id }
             return Wrap(movieDetails)
         }
@@ -226,26 +222,26 @@ class MovieDetailsActivity : AppCompatActivity() {
         disposables.add(disposable)
     }
 
-    private fun changeFavorite() {
+    private fun changeFavorite(context: Context) {
         val movieDetails = movieDetails
         if (movieDetails == null) {
             showMessage(getString(R.string.movie_page_has_not_loaded_yet))
             return
         }
 
-        setResult(Activity.RESULT_OK)
+        //setResult(Activity.RESULT_OK)
 
         fun start(movieDetails: MovieDetails): Boolean {
-            val favoriteMovies = Preference.getFavoriteMovies(this)
+            val favoriteMovies = Preference.getFavoriteMovies(context)
             val result = favoriteMovies.firstOrNull { it.id == movieDetails.id }
 
             return if (result == null) {
                 favoriteMovies.add(movieDetails)
-                Preference.setFavoriteMovies(this, favoriteMovies)
+                Preference.setFavoriteMovies(context, favoriteMovies)
                 true
             } else {
                 favoriteMovies.remove(result)
-                Preference.setFavoriteMovies(this, favoriteMovies)
+                Preference.setFavoriteMovies(context, favoriteMovies)
                 false
             }
         }
@@ -259,7 +255,7 @@ class MovieDetailsActivity : AppCompatActivity() {
 
     private fun updateOptionsMenu(isFavorite: Boolean) {
         this.isFavorite = isFavorite
-        invalidateOptionsMenu()
+        //invalidateOptionsMenu()
     }
 
     private fun justError(error: Throwable) {

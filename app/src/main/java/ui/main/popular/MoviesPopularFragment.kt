@@ -1,13 +1,13 @@
-package ui.popular
+package ui.main.popular
 
-import android.content.Intent
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import com.popularmovies.R
 import entities.MoviesViewModel
 import entities.pojo.Movie
-import ui.MoviesBaseFragment
+import ui.main.base.MoviesBaseFragment
 
 class MoviesPopularFragment : MoviesBaseFragment() {
     private var adapter: Adapter? = null
@@ -25,8 +25,8 @@ class MoviesPopularFragment : MoviesBaseFragment() {
             .loadDataSource(::onPagedListReady, ::onInitialDataSourceLoaded, ::onError)
     }
 
-    override fun startMovieDetailsActivity(intent: Intent) {
-        startActivity(intent)
+    override fun showTopLevelFragment(fragment: Fragment) {
+        requireActivity().supportFragmentManager.beginTransaction().add(R.id.main, fragment).addToBackStack(null).commit()
     }
 
     private fun onPagedListReady(dataSource: PagedList<Movie>) {
