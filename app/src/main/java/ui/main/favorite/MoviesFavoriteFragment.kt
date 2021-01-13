@@ -2,8 +2,12 @@ package ui.main.favorite
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.popularmovies.R
 import entities.helpers.Preference
@@ -24,6 +28,11 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
     }
 
     override fun requestDataSource() {
+        setFragmentResultListener("x", { a, b ->
+            val char = b.getChar("x")
+            println(char)
+        })
+
         val disposable = Single.fromCallable { Preference.getFavoriteMovies(requireContext()) }
             .compose(RxManager.singleTransformer())
             .subscribe(::onDataSourceLoaded, ::onError)
@@ -31,8 +40,8 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
         disposables.add(disposable)
     }
 
-    override fun showTopLevelFragment(fragment: Fragment) {
-        requireActivity().supportFragmentManager.beginTransaction().add(R.id.main, fragment).addToBackStack(null).commit()
+    override fun showTopLevelFragment(view: View, bundle: Bundle) {
+        findNavController().navigate(R.id.master_to_details, bundle)
         //TODO requestCode
     }
 

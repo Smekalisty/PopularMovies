@@ -24,6 +24,8 @@ class MoviesViewModel : ViewModel() {
         webAPI = RetrofitManager().getWebAPI(gson)
     }
 
+    var dataSource: PagedList<Movie>? = null
+
     fun loadDataSource(onPagedListReady: (PagedList<Movie>) -> Unit, onSuccess: (List<Movie>) -> Unit, onError: (Throwable) -> Unit) {
         val dataSourceFactory = DataSourceFactory(webAPI, disposables, onSuccess, onError)
 

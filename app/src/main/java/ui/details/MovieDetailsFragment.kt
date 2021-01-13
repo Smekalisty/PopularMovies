@@ -8,6 +8,8 @@ import android.os.Parcelable
 import android.view.View
 import androidx.appcompat.widget.AppCompatRatingBar
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -74,6 +76,10 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
             setupFavorite(movie.id)
             return
         }
+
+        val bundle = Bundle()
+        bundle.putChar("x", 'y')
+        setFragmentResult("x", bundle)
 
         showMessage(getString(R.string.an_error_has_occurred))
     }

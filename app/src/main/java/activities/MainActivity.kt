@@ -2,24 +2,15 @@ package activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
 import com.popularmovies.R
-import ui.main.MainFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        if (savedInstanceState == null) {
-            showFragment(MainFragment())
-        }
-    }
-
-    private fun showFragment(fragment: Fragment) {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.main, fragment)
-            .commit()
+        val navController = findNavController(R.id.navHostFragment)
+        NavigationUI.setupActionBarWithNavController(this, navController)
     }
 }

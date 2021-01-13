@@ -1,5 +1,6 @@
 package ui.main.favorite
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -9,7 +10,7 @@ import io.reactivex.subjects.PublishSubject
 import ui.main.base.MovieAdapterExecutor
 import ui.main.base.ViewHolder
 
-class Adapter(private val clickSubject: PublishSubject<Movie>) : ListAdapter<MovieDetails, ViewHolder>(config) {
+class Adapter(private val clickSubject: PublishSubject<Pair<View, Movie>>) : ListAdapter<MovieDetails, ViewHolder>(config) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return MovieAdapterExecutor().onCreateViewHolder(parent)
     }

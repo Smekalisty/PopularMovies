@@ -1,6 +1,7 @@
 package ui.main.base
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -18,7 +19,7 @@ class MovieAdapterExecutor {
         return ViewHolder(view)
     }
 
-    fun onBindViewHolder(viewHolder: ViewHolder, movie: Movie, clickSubject: PublishSubject<Movie>) {
+    fun onBindViewHolder(viewHolder: ViewHolder, movie: Movie, clickSubject: PublishSubject<Pair<View, Movie>>) {
         val context = viewHolder.itemView.context
 
         val placeHolder = Utils.generatePastelDrawable(movie.title)
@@ -41,7 +42,7 @@ class MovieAdapterExecutor {
         viewHolder.voteAverage.rating = movie.voteAverage
 
         viewHolder.itemView.setOnClickListener {
-            clickSubject.onNext(movie)
+            clickSubject.onNext(it to movie)
         }
     }
 }

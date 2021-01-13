@@ -1,5 +1,6 @@
 package ui.main.popular
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -8,7 +9,7 @@ import entities.pojo.Movie
 import io.reactivex.subjects.PublishSubject
 import ui.main.base.MovieAdapterExecutor
 
-class Adapter(private val clickSubject: PublishSubject<Movie>) : PagedListAdapter<Movie, ViewHolder>(config) {
+class Adapter(private val clickSubject: PublishSubject<Pair<View, Movie>>) : PagedListAdapter<Movie, ViewHolder>(config) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return MovieAdapterExecutor().onCreateViewHolder(parent)
     }

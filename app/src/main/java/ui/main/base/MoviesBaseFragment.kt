@@ -37,7 +37,7 @@ abstract class MoviesBaseFragment : Fragment() {
             requestDataSource()
         }
 
-        val clickSubject = PublishSubject.create<Movie>()
+        val clickSubject = PublishSubject.create<Pair<View, Movie>>()
         val disposable = clickSubject.subscribe(::onSelected, ::onError)
         disposables.add(disposable)
 
@@ -63,10 +63,10 @@ abstract class MoviesBaseFragment : Fragment() {
 
     abstract fun requestDataSource()
 
-    abstract fun showTopLevelFragment(fragment: Fragment)
+    abstract fun showTopLevelFragment(view: View, bundle: Bundle)
 
-    protected fun getClickSubject(): PublishSubject<Movie> {
-        val clickSubject = PublishSubject.create<Movie>()
+    protected fun getClickSubject(): PublishSubject<Pair<View, Movie>> {
+        val clickSubject = PublishSubject.create<Pair<View, Movie>>()
         val disposable = clickSubject.subscribe(::onSelected, ::onError)
         disposables.add(disposable)
         return clickSubject
@@ -104,12 +104,9 @@ abstract class MoviesBaseFragment : Fragment() {
         Snackbar.make(this, message, Snackbar.LENGTH_SHORT).show()
     }
 
-    private fun onSelected(movie: Movie) {
+    private fun onSelected(pair: Pair<View, Movie>) {
         val bundle = Bundle()
-        bundle.putParcelable(MovieDetailsFragment.extraMovie, movie)
-        val movieDetailsFragment = MovieDetailsFragment()
-        movieDetailsFragment.arguments = bundle
-
-        showTopLevelFragment(movieDetailsFragment)
+        bundle.putParcelable(MovieDetailsFragment.extraMovie, pair.second)
+        showTopLevelFragment(pair.first, bundle)
     }
 }

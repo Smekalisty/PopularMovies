@@ -1,0 +1,66 @@
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="ui.main.MainFragment"
+        android:label="fragment_title"
+        tools:layout="@layout/layout_main">
+
+        <action
+            android:id="@+id/master_to_details"
+            app:destination="@id/detailsFlow" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detailsFlow"
+        android:name="ui.details.MovieDetailsFragment"
+        android:label="MovieDetails"
+        tools:layout="@layout/layout_movie_details">
+
+    </fragment>
+
+<!--    <fragment-->
+<!--        android:id="@+id/gameFragment"-->
+<!--        android:name="ui.details.GameFragment"-->
+<!--        android:label="GameFragment"-->
+<!--        tools:layout="@layout/layout_game">-->
+<!--        <action-->
+<!--            android:id="@+id/action_gameFragment_to_gameOverFragment"-->
+<!--            app:destination="@id/gameOverFragment"-->
+<!--            app:popUpTo="@id/gameFragment"-->
+<!--            app:popUpToInclusive="true" />-->
+<!--        <action-->
+<!--            android:id="@+id/action_gameFragment_to_gameWonFragment"-->
+<!--            app:destination="@id/gameWonFragment"-->
+<!--            app:popUpTo="@id/gameFragment"-->
+<!--            app:popUpToInclusive="true" />-->
+<!--    </fragment>-->
+
+<!--    <fragment-->
+<!--        android:id="@+id/gameOverFragment"-->
+<!--        android:name="ui.details.GameLostFragment"-->
+<!--        android:label="fragment_game_over"-->
+<!--        tools:layout="@layout/layout_game_lost" >-->
+<!--        <action-->
+<!--            android:id="@+id/action_gameOverFragment_to_gameFragment"-->
+<!--            app:destination="@id/gameFragment"-->
+<!--            app:popUpTo="@id/gameFragment"-->
+<!--            app:popUpToInclusive="false" />-->
+<!--    </fragment>-->
+<!--    <fragment-->
+<!--        android:id="@+id/gameWonFragment"-->
+<!--        android:name="ui.details.GameWonFragment"-->
+<!--        android:label="GameWonFragment"-->
+<!--        tools:layout="@layout/layout_game_won">-->
+<!--        <action-->
+<!--            android:id="@+id/action_gameWonFragment_to_gameFragment"-->
+<!--            app:destination="@id/gameFragment"-->
+<!--            app:popUpTo="@id/mainFragment"-->
+<!--            app:popUpToInclusive="false" />-->
+<!--    </fragment>-->
+</navigation>
