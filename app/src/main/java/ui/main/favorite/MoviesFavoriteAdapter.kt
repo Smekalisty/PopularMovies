@@ -10,7 +10,7 @@ import io.reactivex.subjects.PublishSubject
 import ui.main.base.MovieAdapterExecutor
 import ui.main.base.ViewHolder
 
-class Adapter(private val clickSubject: PublishSubject<Pair<View, Movie>>) : ListAdapter<MovieDetails, ViewHolder>(config) {
+class MoviesFavoriteAdapter(private val clickSubject: PublishSubject<Pair<View, Movie>>) : ListAdapter<MovieDetails, ViewHolder>(config) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return MovieAdapterExecutor().onCreateViewHolder(parent)
     }

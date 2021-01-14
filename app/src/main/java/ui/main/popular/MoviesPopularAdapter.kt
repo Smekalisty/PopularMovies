@@ -9,7 +9,7 @@ import entities.pojo.Movie
 import io.reactivex.subjects.PublishSubject
 import ui.main.base.MovieAdapterExecutor
 
-class Adapter(private val clickSubject: PublishSubject<Pair<View, Movie>>) : PagedListAdapter<Movie, ViewHolder>(config) {
+class MoviesPopularAdapter(private val clickSubject: PublishSubject<Pair<View, Movie>>) : PagedListAdapter<Movie, ViewHolder>(config) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return MovieAdapterExecutor().onCreateViewHolder(parent)
     }

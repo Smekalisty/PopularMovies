@@ -1,21 +1,18 @@
 package ui.main.favorite
 
-import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.popularmovies.R
 import entities.pojo.MovieDetails
 import ui.main.base.MoviesBaseFragment
 
 class MoviesFavoriteFragment : MoviesBaseFragment() {
     private val viewModel by activityViewModels<MoviesFavoriteViewModel>()
 
-    private var adapter: Adapter? = null
+    private var adapter: MoviesFavoriteAdapter? = null
 
     override fun setAdapter(recyclerView: RecyclerView) {
-        adapter = Adapter(getClickSubject())
+        adapter = MoviesFavoriteAdapter(getClickSubject())
+        recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
     }
 
@@ -32,10 +29,6 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
                 onDataSourceLoaded(viewModel.dataSource!!)
             }
         }
-    }
-
-    override fun showTopLevelFragment(view: View, bundle: Bundle) {
-        findNavController().navigate(R.id.main_to_details, bundle)
     }
 
     private fun onDataSourceLoaded(dataSource: MutableList<MovieDetails>) {

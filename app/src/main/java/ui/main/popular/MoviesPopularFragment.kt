@@ -1,25 +1,28 @@
 package ui.main.popular
 
 import android.os.Bundle
+import android.transition.TransitionInflater
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavDirections
-import androidx.navigation.fragment.FragmentNavigatorExtras
-import androidx.navigation.fragment.findNavController
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
-import com.popularmovies.R
 import entities.pojo.Movie
 import ui.main.base.MoviesBaseFragment
-import java.util.*
 
 class MoviesPopularFragment : MoviesBaseFragment() {
-    private var adapter: Adapter? = null
+    private var adapter: MoviesPopularAdapter? = null
 
     private val viewModel by viewModels<MoviesPopularViewModel>()
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.fade)
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
     override fun setAdapter(recyclerView: RecyclerView) {
-        adapter = Adapter(getClickSubject())
+        adapter = MoviesPopularAdapter(getClickSubject())
         recyclerView.adapter = adapter
     }
 
@@ -29,24 +32,6 @@ class MoviesPopularFragment : MoviesBaseFragment() {
         } else {
             viewModel.loadDataSource(::onPagedListReady, ::onInitialDataSourceLoaded, ::onError)
         }
-    }
-
-    override fun showTopLevelFragment(view: View, bundle: Bundle) {
-        val nd = object : NavDirections {
-            override fun getActionId(): Int {
-                return R.id.main_to_details
-            }
-
-            override fun getArguments(): Bundle {
-                return bundle
-            }
-        }
-
-        val transitionName = UUID.randomUUID().toString()
-        view.transitionName = transitionName
-        val extras = FragmentNavigatorExtras(view to view.transitionName)
-
-        findNavController().navigate(nd, extras)
     }
 
     private fun onPagedListReady(dataSource: PagedList<Movie>) {

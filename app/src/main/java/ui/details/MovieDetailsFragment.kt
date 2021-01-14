@@ -5,11 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
+import android.transition.TransitionInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.AppCompatRatingBar
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
@@ -56,6 +58,7 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -76,11 +79,13 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
 
         val movie = arguments?.getParcelable<Parcelable>(extraMovie)
         if (movie is MovieDetails) {
+            f(movie.id.toString())
             populateBody(movie)
             return
         }
 
         if (movie is Movie) {
+            f(movie.id.toString())
             populateHead(movie)
             requestDataSource(movie)
             setupFavorite(movie.id)
@@ -88,6 +93,10 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
         }
 
         showMessage(getString(R.string.an_error_has_occurred))
+    }
+
+    private fun f(id: String) {
+        ViewCompat.setTransitionName(poster!!, "image_$id")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -203,10 +212,8 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
     }
 
     private fun setupFavorite(id: Int) {
-        val context = context ?: return
-
         fun start(id: Int): Wrap<MovieDetails> {
-            val favoriteMovies = Preference.getFavoriteMovies(context)
+            val favoriteMovies = Preference.getFavoriteMovies(requireContext())
             val movieDetails = favoriteMovies.firstOrNull { it.id == id }
             return Wrap(movieDetails)
         }

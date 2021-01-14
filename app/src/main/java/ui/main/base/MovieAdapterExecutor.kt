@@ -3,6 +3,7 @@ package ui.main.base
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -41,8 +42,10 @@ class MovieAdapterExecutor {
         viewHolder.voteCount.text = context.getString(R.string.votes, movie.voteCount.toString())
         viewHolder.voteAverage.rating = movie.voteAverage
 
+        ViewCompat.setTransitionName(viewHolder.backdrop, "image_${movie.id}")
+
         viewHolder.itemView.setOnClickListener {
-            clickSubject.onNext(it to movie)
+            clickSubject.onNext(viewHolder.backdrop to movie)
         }
     }
 }
