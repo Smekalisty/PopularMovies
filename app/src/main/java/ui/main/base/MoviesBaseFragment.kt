@@ -21,12 +21,10 @@ abstract class MoviesBaseFragment : Fragment() {
     private var recyclerView: RecyclerView? = null
     private var refresh: SwipeRefreshLayout? = null
     private var infoLayout: View? = null
-    protected var disposables = CompositeDisposable()
+    private var disposables = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.layout_movies, container, false)
-
-        activity?.title = getString(getTitle())
 
         infoLayout = view.findViewById(R.id.infoLayout)
         infoLayout?.visibility = View.GONE
@@ -56,8 +54,6 @@ abstract class MoviesBaseFragment : Fragment() {
         disposables.dispose()
         super.onDestroy()
     }
-
-    abstract fun getTitle(): Int
 
     abstract fun setAdapter(recyclerView: RecyclerView)
 

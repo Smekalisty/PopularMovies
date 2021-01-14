@@ -1,17 +1,20 @@
-package entities
+package ui.main.popular
 
 import androidx.lifecycle.ViewModel
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
 import com.google.gson.GsonBuilder
 import contracts.WebAPI
+import entities.DataSourceFactory
+import entities.MovieJsonDeserializer
+import entities.WebConstants
 import entities.helpers.RetrofitManager
 import entities.pojo.Movie
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class MoviesViewModel : ViewModel() {
+class MoviesPopularViewModel : ViewModel() {
     private val webAPI: WebAPI
 
     private val disposables = CompositeDisposable()

@@ -5,11 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.AppCompatRatingBar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -27,6 +29,7 @@ import entities.pojo.Movie
 import entities.pojo.MovieDetails
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
+import ui.main.favorite.MoviesFavoriteViewModel
 import java.net.UnknownHostException
 
 class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
@@ -47,6 +50,13 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
     private var disposables = CompositeDisposable()
     private var isFavorite: Boolean? = null
     private var movieDetails: MovieDetails? = null
+
+    private val viewModel by activityViewModels<MoviesFavoriteViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         title = view.findViewById(R.id.title)
@@ -77,40 +87,30 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
             return
         }
 
-        val bundle = Bundle()
-        bundle.putChar("x", 'y')
-        setFragmentResult("x", bundle)
-
         showMessage(getString(R.string.an_error_has_occurred))
     }
 
-    /*override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         isFavorite?.let {
-            menuInflater.inflate(R.menu.movie_menu, menu)
+            inflater.inflate(R.menu.movie_menu, menu)
 
             if (it) {
-                val item = menu?.findItem(R.id.favorite)
+                val item = menu.findItem(R.id.favorite)
                 item?.setIcon(R.drawable.icon_favorite_yellow)
             }
         }
-
-        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                return true
-            }
             R.id.favorite -> {
-                changeFavorite()
+                changeFavorite(requireContext())
                 return true
             }
         }
 
         return false
-    }*/
+    }
 
     override fun onDestroy() {
         disposables.dispose()
@@ -128,7 +128,7 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
     }
 
     private fun populateHead(movie: Movie) {
-        //setTitle(movie.title)
+        requireActivity().title = movie.title
 
         title?.text = movie.title
         voteCount?.text = getString(R.string.votes, movie.voteCount.toString())
@@ -235,7 +235,7 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
             return
         }
 
-        //setResult(Activity.RESULT_OK)
+        viewModel.isReloadDataSourceRequired = true
 
         fun start(movieDetails: MovieDetails): Boolean {
             val favoriteMovies = Preference.getFavoriteMovies(context)
@@ -261,7 +261,7 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
 
     private fun updateOptionsMenu(isFavorite: Boolean) {
         this.isFavorite = isFavorite
-        //invalidateOptionsMenu()
+        requireActivity().invalidateOptionsMenu()
     }
 
     private fun justError(error: Throwable) {

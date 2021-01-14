@@ -9,7 +9,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.popularmovies.R
 
 class MainFragment : Fragment(R.layout.layout_main), TabLayoutMediator.TabConfigurationStrategy {
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val tabs = view.findViewById<TabLayout>(R.id.tabs)
         val viewPager = view.findViewById<ViewPager2>(R.id.pager)

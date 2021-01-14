@@ -1,26 +1,18 @@
 package ui.main.favorite
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
-import androidx.navigation.findNavController
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.popularmovies.R
-import entities.helpers.Preference
-import entities.helpers.RxManager
 import entities.pojo.MovieDetails
-import io.reactivex.Single
 import ui.main.base.MoviesBaseFragment
 
 class MoviesFavoriteFragment : MoviesBaseFragment() {
-    private var adapter: Adapter? = null
-    private var requestCode = 1
+    private val viewModel by activityViewModels<MoviesFavoriteViewModel>()
 
-    override fun getTitle() = R.string.favorite_movies
+    private var adapter: Adapter? = null
 
     override fun setAdapter(recyclerView: RecyclerView) {
         adapter = Adapter(getClickSubject())
@@ -28,32 +20,26 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
     }
 
     override fun requestDataSource() {
-        setFragmentResultListener("x", { a, b ->
-            val char = b.getChar("x")
-            println(char)
-        })
-
-        val disposable = Single.fromCallable { Preference.getFavoriteMovies(requireContext()) }
-            .compose(RxManager.singleTransformer())
-            .subscribe(::onDataSourceLoaded, ::onError)
-
-        disposables.add(disposable)
-    }
-
-    override fun showTopLevelFragment(view: View, bundle: Bundle) {
-        findNavController().navigate(R.id.master_to_details, bundle)
-        //TODO requestCode
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == 1) {
-            if (resultCode == Activity.RESULT_OK) {
-                requestDataSource()
+        when {
+            viewModel.isReloadDataSourceRequired -> {
+                viewModel.isReloadDataSourceRequired = false
+                viewModel.requestDataSource(::onDataSourceLoaded, ::onError)
+            }
+            viewModel.dataSource == null -> {
+                viewModel.requestDataSource(::onDataSourceLoaded, ::onError)
+            }
+            else -> {
+                onDataSourceLoaded(viewModel.dataSource!!)
             }
         }
     }
 
+    override fun showTopLevelFragment(view: View, bundle: Bundle) {
+        findNavController().navigate(R.id.main_to_details, bundle)
+    }
+
     private fun onDataSourceLoaded(dataSource: MutableList<MovieDetails>) {
+        viewModel.dataSource = dataSource
         onDataSourceLoaded(dataSource.isNotEmpty())
         adapter?.submitList(dataSource)
     }
