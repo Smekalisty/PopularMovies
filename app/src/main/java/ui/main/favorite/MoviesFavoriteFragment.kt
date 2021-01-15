@@ -11,7 +11,7 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
     private var adapter: MoviesFavoriteAdapter? = null
 
     override fun setAdapter(recyclerView: RecyclerView) {
-        adapter = MoviesFavoriteAdapter(getClickSubject())
+        adapter = MoviesFavoriteAdapter()
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
     }

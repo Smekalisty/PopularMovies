@@ -15,7 +15,9 @@ import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
+import com.bumptech.glide.TransitionOptions
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
@@ -48,6 +50,7 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
     private var budget: MaterialTextView? = null
     private var homepage: MaterialButton? = null
     private var poster: ShapeableImageView? = null
+    private var poster1: ShapeableImageView? = null
 
     private var disposables = CompositeDisposable()
     private var isFavorite: Boolean? = null
@@ -71,6 +74,7 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
         budget = view.findViewById(R.id.budget)
         homepage = view.findViewById(R.id.homepage)
         poster = view.findViewById(R.id.poster)
+        poster1 = view.findViewById(R.id.poster1)
 
         tagLine?.visibility = View.GONE
         releaseDate?.visibility = View.GONE
@@ -79,13 +83,13 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
 
         val movie = arguments?.getParcelable<Parcelable>(extraMovie)
         if (movie is MovieDetails) {
-            f(movie.id.toString())
+            transition(movie, view)
             populateBody(movie)
             return
         }
 
         if (movie is Movie) {
-            f(movie.id.toString())
+            transition(movie, view)
             populateHead(movie)
             requestDataSource(movie)
             setupFavorite(movie.id)
@@ -95,8 +99,23 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
         showMessage(getString(R.string.an_error_has_occurred))
     }
 
-    private fun f(id: String) {
-        ViewCompat.setTransitionName(poster!!, "image_$id")
+    private fun transition(movie: Movie, view: View) {
+        val poster1 = poster1 ?: return
+        /*poster1.transitionName = "image_${movie.id}"
+        title?.transitionName = "title_${movie.id}"*/
+
+        view.transitionName = "image_${movie.id}"
+
+        val requestOptions = RequestOptions()
+            .centerCrop()
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+
+        val url = WebConstants.imageUrl + movie.backdropPath
+
+        Glide.with(this)
+            .load(url)
+            .apply(requestOptions)
+            .into(poster1)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -194,6 +213,7 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
         Glide.with(this)
             .load(url)
             .apply(requestOptions)
+            .transition(DrawableTransitionOptions.withCrossFade())
             .into(image)
     }
 

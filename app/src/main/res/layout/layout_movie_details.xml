@@ -6,10 +6,32 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="4dp">
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/poster1"
+            android:layout_width="0dp"
+            android:layout_height="192dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.circularreveal.CircularRevealRelativeLayout
+            android:layout_width="128dp"
+            android:layout_height="192dp"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/colorPrimaryVariant"
+            app:layout_constraintBottom_toBottomOf="@+id/poster1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/poster1">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/poster"
+                android:layout_width="124dp"
+                android:layout_height="188dp"
+                android:layout_centerInParent="true" />
+
+        </com.google.android.material.circularreveal.CircularRevealRelativeLayout>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/title"
@@ -17,9 +39,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/default_margin"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/poster1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.circularreveal.CircularRevealRelativeLayout
             android:id="@+id/ratingLayout"
@@ -101,15 +123,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/budget" />
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/poster"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/default_margin"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/homepage" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
