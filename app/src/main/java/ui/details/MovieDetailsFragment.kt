@@ -10,20 +10,15 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.widget.AppCompatRatingBar
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
-import com.bumptech.glide.TransitionOptions
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textview.MaterialTextView
 import com.popularmovies.R
+import com.popularmovies.databinding.FragmentMovieDetailsBinding
 import entities.WebConstants
 import entities.helpers.Preference
 import entities.helpers.RetrofitManager
@@ -36,25 +31,16 @@ import io.reactivex.disposables.CompositeDisposable
 import ui.main.favorite.MoviesFavoriteViewModel
 import java.net.UnknownHostException
 
-class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
+class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
     companion object {
         const val extraMovie = "extraMovie"
     }
 
-    private var title: MaterialTextView? = null
-    private var voteCount: MaterialTextView? = null
-    private var voteAverage: AppCompatRatingBar? = null
-    private var overview: MaterialTextView? = null
-    private var tagLine: MaterialTextView? = null
-    private var releaseDate: MaterialTextView? = null
-    private var budget: MaterialTextView? = null
-    private var homepage: MaterialButton? = null
-    private var poster: ShapeableImageView? = null
-    private var poster1: ShapeableImageView? = null
-
     private var disposables = CompositeDisposable()
     private var isFavorite: Boolean? = null
     private var movieDetails: MovieDetails? = null
+
+    private var binding: FragmentMovieDetailsBinding? = null
 
     private val viewModel by activityViewModels<MoviesFavoriteViewModel>()
 
@@ -65,21 +51,15 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        title = view.findViewById(R.id.title)
-        voteCount = view.findViewById(R.id.voteCount)
-        voteAverage = view.findViewById(R.id.voteAverage)
-        overview = view.findViewById(R.id.overview)
-        tagLine = view.findViewById(R.id.tagLine)
-        releaseDate = view.findViewById(R.id.releaseDate)
-        budget = view.findViewById(R.id.budget)
-        homepage = view.findViewById(R.id.homepage)
-        poster = view.findViewById(R.id.poster)
-        poster1 = view.findViewById(R.id.poster1)
+        val binding = FragmentMovieDetailsBinding.bind(view)
+        this.binding = binding
 
-        tagLine?.visibility = View.GONE
-        releaseDate?.visibility = View.GONE
-        budget?.visibility = View.GONE
-        homepage?.visibility = View.GONE
+        with(binding) {
+            tagLine.visibility = View.GONE
+            releaseDate.visibility = View.GONE
+            budget.visibility = View.GONE
+            homepage.visibility = View.GONE
+        }
 
         val movie = arguments?.getParcelable<Parcelable>(extraMovie)
         if (movie is MovieDetails) {
@@ -99,8 +79,14 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
         showMessage(getString(R.string.an_error_has_occurred))
     }
 
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
+
     private fun transition(movie: Movie, view: View) {
-        val poster1 = poster1 ?: return
+        val poster1 = binding?.poster1 ?: return
+
         /*poster1.transitionName = "image_${movie.id}"
         title?.transitionName = "title_${movie.id}"*/
 
@@ -155,16 +141,22 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
         disposables.add(disposable)
     }
 
-    private fun populateHead(movie: Movie) {
-        requireActivity().title = movie.title
+    //TODO parcelaze to serialize
 
-        title?.text = movie.title
-        voteCount?.text = getString(R.string.votes, movie.voteCount.toString())
-        voteAverage?.rating = movie.voteAverage
-        overview?.text = movie.overview
+    private fun populateHead(movie: Movie) {
+        activity?.title = movie.title
+
+        binding?.let {
+            it.title.text = movie.title
+            it.voteCount.text = getString(R.string.votes, movie.voteCount.toString())
+            it.voteAverage.rating = movie.voteAverage
+            it.overview.text = movie.overview
+        }
     }
 
     private fun populateBody(movieDetails: MovieDetails) {
+        val binding = binding ?: return
+
         this.movieDetails = movieDetails
 
         setupFavorite(movieDetails.id)
@@ -172,37 +164,27 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
         populateHead(movieDetails)
 
         if (movieDetails.tagLine.isNotEmpty()) {
-            tagLine?.apply {
-                visibility = View.VISIBLE
-                text = movieDetails.tagLine
-            }
+            binding.tagLine.visibility = View.VISIBLE
+            binding.tagLine.text = movieDetails.tagLine
         }
 
         if (movieDetails.releaseDate.isNotEmpty()) {
-            releaseDate?.apply {
-                visibility = View.VISIBLE
-                text = getString(R.string.release_date, movieDetails.releaseDate)
-            }
+            binding.releaseDate.visibility = View.VISIBLE
+            binding.releaseDate.text = getString(R.string.release_date, movieDetails.releaseDate)
         }
 
-        budget?.apply {
-            visibility = View.VISIBLE
-            text = getString(R.string.budget, movieDetails.budget.toString())
-        }
+        binding.budget.visibility = View.VISIBLE
+        binding.budget.text = getString(R.string.budget, movieDetails.budget.toString())
 
         if (!movieDetails.homepage.isNullOrEmpty()) {
-            homepage?.apply {
-                visibility = View.VISIBLE
+            binding.homepage.visibility = View.VISIBLE
 
-                setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.data = Uri.parse(movieDetails.homepage)
-                    startActivity(intent)
-                }
+            binding.homepage.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse(movieDetails.homepage)
+                startActivity(intent)
             }
         }
-
-        val image = poster ?: return
 
         val requestOptions = RequestOptions()
             .centerCrop()
@@ -214,7 +196,7 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
             .load(url)
             .apply(requestOptions)
             .transition(DrawableTransitionOptions.withCrossFade())
-            .into(image)
+            .into(binding.poster)
     }
 
     private fun onError(error: Throwable) {
@@ -227,7 +209,7 @@ class MovieDetailsFragment : Fragment(R.layout.layout_movie_details) {
     }
 
     private fun showMessage(message: String) {
-        val view = view ?: return
+        val view = binding?.root ?: return
         Snackbar.make(view.findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show()
     }
 
