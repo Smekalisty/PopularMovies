@@ -18,7 +18,7 @@ import ui.details.MovieDetailsFragment
 class MovieAdapterExecutor {
     fun onCreateViewHolder(viewGroup: ViewGroup): ViewHolder {
         val layoutInflater = LayoutInflater.from(viewGroup.context)
-        val view = layoutInflater.inflate(R.layout.layout_movie, viewGroup, false)
+        val view = layoutInflater.inflate(R.layout.movie_item, viewGroup, false)
         return ViewHolder(view)
     }
 

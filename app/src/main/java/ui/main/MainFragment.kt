@@ -10,7 +10,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.popularmovies.R
 
-class MainFragment : Fragment(R.layout.layout_main), TabLayoutMediator.TabConfigurationStrategy {
+class MainFragment : Fragment(R.layout.fragment_main), TabLayoutMediator.TabConfigurationStrategy {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
