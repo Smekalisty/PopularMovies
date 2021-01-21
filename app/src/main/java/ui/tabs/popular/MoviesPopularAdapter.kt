@@ -7,7 +7,7 @@ import ui.tabs.base.ViewHolder
 import ui.tabs.pojo.Movie
 import ui.tabs.base.MovieAdapterExecutor
 
-class MoviesPopularAdapter() : PagedListAdapter<Movie, ViewHolder>(config) {
+class MoviesPopularAdapter : PagedListAdapter<Movie, ViewHolder>(config) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return MovieAdapterExecutor().onCreateViewHolder(parent)
     }
