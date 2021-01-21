@@ -1,8 +1,8 @@
 package contracts
 
 import io.reactivex.Single
-import entities.pojo.Movie
-import entities.pojo.MovieDetails
+import ui.tabs.pojo.Movie
+import ui.tabs.pojo.MovieDetails
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path

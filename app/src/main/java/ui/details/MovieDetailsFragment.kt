@@ -19,16 +19,17 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
 import com.popularmovies.R
 import com.popularmovies.databinding.FragmentMovieDetailsBinding
-import entities.WebConstants
-import entities.helpers.Preference
-import entities.helpers.RetrofitManager
-import entities.helpers.RxManager
-import entities.helpers.Wrap
-import entities.pojo.Movie
-import entities.pojo.MovieDetails
+import constants.Constants
+import constants.WebConstants
+import utils.Preference
+import utils.RetrofitManager
+import utils.RxManager
+import utils.Wrap
+import ui.tabs.pojo.Movie
+import ui.tabs.pojo.MovieDetails
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
-import ui.main.favorite.MoviesFavoriteViewModel
+import ui.tabs.favorite.MoviesFavoriteViewModel
 import java.net.UnknownHostException
 
 class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
@@ -87,10 +88,7 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
     private fun transition(movie: Movie, view: View) {
         val poster1 = binding?.poster1 ?: return
 
-        /*poster1.transitionName = "image_${movie.id}"
-        title?.transitionName = "title_${movie.id}"*/
-
-        view.transitionName = "image_${movie.id}"
+        view.transitionName = "${Constants.transitionName}${movie.id}"
 
         val requestOptions = RequestOptions()
             .centerCrop()
@@ -110,7 +108,7 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
 
             if (it) {
                 val item = menu.findItem(R.id.favorite)
-                item?.setIcon(R.drawable.icon_favorite_yellow)
+                item?.setIcon(R.drawable.icon_favorite_selected)
             }
         }
     }
@@ -226,7 +224,7 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
             }
 
             if (this.movieDetails != null) {
-                updateOptionsMenu(wrap.data != null)
+                setupOptionsMenu(wrap.data != null)
             }
         }
 
@@ -244,13 +242,11 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
             return
         }
 
-        viewModel.isReloadDataSourceRequired = true
-
-        fun start(movieDetails: MovieDetails): Boolean {
+        fun start(movieDetails: MovieDetails): Pair<Int, Boolean> {
             val favoriteMovies = Preference.getFavoriteMovies(context)
             val result = favoriteMovies.firstOrNull { it.id == movieDetails.id }
 
-            return if (result == null) {
+            val favoritesSize = if (result == null) {
                 favoriteMovies.add(movieDetails)
                 Preference.setFavoriteMovies(context, favoriteMovies)
                 true
@@ -259,16 +255,24 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
                 Preference.setFavoriteMovies(context, favoriteMovies)
                 false
             }
+
+            return favoriteMovies.size to favoritesSize
         }
 
         val disposable = Single.fromCallable { start(movieDetails) }
             .compose(RxManager.singleTransformer())
-            .subscribe(::updateOptionsMenu, ::justError)
+            .subscribe(::onUpdateFavoritesSuccess, ::justError)
 
         disposables.add(disposable)
     }
 
-    private fun updateOptionsMenu(isFavorite: Boolean) {
+    private fun onUpdateFavoritesSuccess(pair: Pair<Int, Boolean>) {
+        viewModel.isReloadDataSourceRequired = true
+        viewModel.favoritesSize = pair.first
+        setupOptionsMenu(pair.second)
+    }
+
+    private fun setupOptionsMenu(isFavorite: Boolean) {
         this.isFavorite = isFavorite
         requireActivity().invalidateOptionsMenu()
     }

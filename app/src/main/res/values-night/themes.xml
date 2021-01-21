@@ -1,16 +1,11 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="ApplicationTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">#000000</item>
-        <item name="colorPrimaryDark">#000000</item>
-        <item name="colorPrimaryVariant">#4E0D3A</item>
-        <item name="colorSecondary">#6B38FB</item>
-        <item name="colorSurface">#0000FF</item>
-        <item name="android:colorBackground">#FFFFFF</item>
-        <item name="colorError">#C5032B</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorOnSecondary">#FFFFFF</item>
-        <item name="colorOnSurface">#442B2D</item>
-        <item name="colorOnError">#FFFBFA</item>
-        <item name="colorOnBackground">#442B2D</item>
+        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_200</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
     </style>
 </resources>
