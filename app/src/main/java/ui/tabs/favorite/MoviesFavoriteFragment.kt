@@ -31,6 +31,8 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
         }
     }
 
+    //TODO сохрянять dataSource в view model-e а не тут
+
     private fun onDataSourceLoaded(dataSource: MutableList<MovieDetails>) {
         viewModel.dataSource = dataSource
         onDataSourceLoaded(dataSource.isNotEmpty())

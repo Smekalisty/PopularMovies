@@ -11,7 +11,7 @@ import com.popularmovies.databinding.FragmentMoviesBinding
 import java.net.UnknownHostException
 
 abstract class MoviesBaseFragment : Fragment(R.layout.fragment_movies) {
-    private var binding: FragmentMoviesBinding? = null
+    protected var binding: FragmentMoviesBinding? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentMoviesBinding.bind(view)

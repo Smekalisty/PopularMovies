@@ -1,48 +1,65 @@
 package ui.tabs.popular
 
 import androidx.lifecycle.ViewModel
-import androidx.paging.PagedList
-import androidx.paging.RxPagedListBuilder
+import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.google.gson.GsonBuilder
-import contracts.WebAPI
-import ui.tabs.popular.entities.DataSourceFactory
-import ui.tabs.popular.entities.MovieJsonDeserializer
 import constants.WebConstants
-import utils.RetrofitManager
+import contracts.BackendService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import ui.tabs.pojo.Movie
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import ui.tabs.popular.entities.MovieJsonDeserializer
+import ui.tabs.popular.entities.MoviesDataSource
+import utils.RetrofitManager
 
 class MoviesPopularViewModel : ViewModel() {
-    private val webAPI: WebAPI
+    private val backendService: BackendService
 
-    private val disposables = CompositeDisposable()
+    private var dataSource: PagingData<Movie>? = null
+
+    private var adapter: MoviesPopularAdapter? = null
 
     init {
         val gson = GsonBuilder()
             .registerTypeAdapter(List::class.java, MovieJsonDeserializer())
             .create()
 
-        webAPI = RetrofitManager().getWebAPI(gson)
+        backendService = RetrofitManager().getWebAPI(gson)
     }
 
-    var dataSource: PagedList<Movie>? = null
+    fun requestDataSource(adapter: MoviesPopularAdapter?) {
+        this.adapter = adapter
 
-    fun loadDataSource(onPagedListReady: (PagedList<Movie>) -> Unit, onSuccess: (List<Movie>) -> Unit, onError: (Throwable) -> Unit) {
-        val dataSourceFactory = DataSourceFactory(webAPI, disposables, onSuccess, onError)
+        viewModelScope.launch {
+            if (dataSource == null) {
+                println("qwerty requestDataSource from network")
 
-        val disposable = RxPagedListBuilder(dataSourceFactory, WebConstants.pageSize)
-            .buildObservable()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(Schedulers.io())
-            .subscribe(onPagedListReady, onError)
-
-        disposables.add(disposable)
+                requestDataSource().collect(::onDataSourceLoaded)
+            } else {
+                println("qwerty requestDataSource from cache")
+                adapter?.submitData(dataSource!!)
+            }
+        }
     }
 
-    override fun onCleared() {
-        disposables.dispose()
-        super.onCleared()
+    private fun requestDataSource(): Flow<PagingData<Movie>> {
+        println("qwerty requestDataSource 2")
+
+        val source = {
+            MoviesDataSource(backendService)
+        }
+
+        val flow = Pager(PagingConfig(pageSize = WebConstants.pageSize), null, source).flow.cachedIn(viewModelScope)
+        return flow
+    }
+
+    private suspend fun onDataSourceLoaded(dataSource: PagingData<Movie>) {
+        this.dataSource = dataSource
+        adapter?.submitData(dataSource)
     }
 }

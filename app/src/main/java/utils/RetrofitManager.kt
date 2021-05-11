@@ -1,14 +1,14 @@
 package utils
 
 import com.google.gson.Gson
-import contracts.WebAPI
+import contracts.BackendService
 import constants.WebConstants
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 class RetrofitManager {
-    fun getWebAPI(gson: Gson? = null): WebAPI {
+    fun getWebAPI(gson: Gson? = null): BackendService {
         val converterFactory = if (gson == null) {
             GsonConverterFactory.create()
         } else {
@@ -21,6 +21,6 @@ class RetrofitManager {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
 
-        return retrofit.create(WebAPI::class.java)
+        return retrofit.create(BackendService::class.java)
     }
 }

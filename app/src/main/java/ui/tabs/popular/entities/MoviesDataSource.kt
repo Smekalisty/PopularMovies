@@ -1,35 +1,33 @@
 package ui.tabs.popular.entities
 
-import androidx.paging.PageKeyedDataSource
-import contracts.WebAPI
+import android.os.Looper
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import constants.WebConstants
-import utils.RxManager
+import contracts.BackendService
 import ui.tabs.pojo.Movie
-import io.reactivex.disposables.CompositeDisposable
 
-class MoviesDataSource(private val webAPI: WebAPI, private val disposables: CompositeDisposable, private val onSuccess: (List<Movie>) -> Unit, private val onError: (Throwable) -> Unit) : PageKeyedDataSource<Int, Movie>() {
-    override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Movie>) {
-        val disposable = webAPI
-            .requestPopularMovies(1, WebConstants.apiKey)
-            .compose(RxManager.singleTransformer())
-            .subscribe({
-                callback.onResult(it, 1, 2)
-                onSuccess(it)
-            }, onError)
-
-        disposables.add(disposable)
+class MoviesDataSource(private val backendService: BackendService) : PagingSource<Int, Movie>() {
+    override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
+        return null
     }
 
-    override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Movie>) {
-        val disposable = webAPI
-            .requestPopularMovies(params.key, WebConstants.apiKey)
-            .compose(RxManager.singleTransformer())
-            .subscribe({
-                callback.onResult(it, params.key + 1)
-            }, onError)
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
+        return try {
+            val page = params.key ?: 1
 
-        disposables.add(disposable)
+            if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+                println("qwerty is UI thread")
+            } else {
+                println("qwerty is not UI thread")
+            }
+
+            println("qwerty loading page $page")
+
+            val result = backendService.requestPopularMovies(page, WebConstants.apiKey)
+            LoadResult.Page(result, null, page + 1)
+        } catch (e: Exception) {
+            LoadResult.Error(e)
+        }
     }
-
-    override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, Movie>) { }
 }
