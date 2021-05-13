@@ -16,7 +16,7 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
         recyclerView.adapter = adapter
     }
 
-    override fun requestDataSource() {
+    override fun requestDataSource(force: Boolean) {
         when {
             viewModel.isReloadDataSourceRequired -> {
                 viewModel.isReloadDataSourceRequired = false

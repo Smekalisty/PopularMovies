@@ -1,6 +1,5 @@
 package ui.tabs.popular.entities
 
-import android.os.Looper
 import com.google.gson.Gson
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -11,16 +10,13 @@ import java.lang.reflect.Type
 class MovieJsonDeserializer : JsonDeserializer<List<Movie>> {
     override fun deserialize(json: JsonElement?, type: Type?, context: JsonDeserializationContext?): List<Movie> {
         val jsonElement = json?.asJsonObject?.get("results")
-        val result =  Gson().fromJson<List<Movie>>(jsonElement, type)
 
-        println("qwerty size = ${result.size} first title = ${result.firstOrNull()?.title}")
+        val size = (jsonElement as com.google.gson.JsonArray).size()
+        val firstTitle = jsonElement[0].asJsonObject?.get("title")
+        println("qwerty Loaded from network $size movies, first is $firstTitle")
 
-        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            println("qwerty MovieJsonDeserializer is UI thread")
-        } else {
-            println("qwerty MovieJsonDeserializer is not UI thread")
-        }
+        Thread.sleep(1 * 1000)
 
-        return result
+        return Gson().fromJson(jsonElement, type)
     }
 }

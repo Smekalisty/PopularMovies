@@ -20,9 +20,7 @@ import utils.RetrofitManager
 class MoviesPopularViewModel : ViewModel() {
     private val backendService: BackendService
 
-    private var dataSource: PagingData<Movie>? = null
-
-    private var adapter: MoviesPopularAdapter? = null
+    private var flowDataSource: Flow<PagingData<Movie>>
 
     init {
         val gson = GsonBuilder()
@@ -30,36 +28,27 @@ class MoviesPopularViewModel : ViewModel() {
             .create()
 
         backendService = RetrofitManager().getWebAPI(gson)
+
+        flowDataSource = createDataSourceFlow()
     }
 
-    fun requestDataSource(adapter: MoviesPopularAdapter?) {
-        this.adapter = adapter
-
-        viewModelScope.launch {
-            if (dataSource == null) {
-                println("qwerty requestDataSource from network")
-
-                requestDataSource().collect(::onDataSourceLoaded)
-            } else {
-                println("qwerty requestDataSource from cache")
-                adapter?.submitData(dataSource!!)
-            }
-        }
-    }
-
-    private fun requestDataSource(): Flow<PagingData<Movie>> {
-        println("qwerty requestDataSource 2")
-
+    private fun createDataSourceFlow(): Flow<PagingData<Movie>> {
         val source = {
             MoviesDataSource(backendService)
         }
 
-        val flow = Pager(PagingConfig(pageSize = WebConstants.pageSize), null, source).flow.cachedIn(viewModelScope)
-        return flow
+        return Pager(PagingConfig(pageSize = WebConstants.pageSize), null, source)
+            .flow
+            .cachedIn(viewModelScope)
     }
 
-    private suspend fun onDataSourceLoaded(dataSource: PagingData<Movie>) {
-        this.dataSource = dataSource
-        adapter?.submitData(dataSource)
+    fun requestDataSource(force: Boolean, adapter: MoviesPopularAdapter) {
+        if (force) {
+            flowDataSource = createDataSourceFlow()
+        }
+
+        viewModelScope.launch {
+            flowDataSource.collect(adapter::submitData)
+        }
     }
 }

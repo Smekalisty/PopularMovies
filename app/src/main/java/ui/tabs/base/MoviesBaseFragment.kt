@@ -22,7 +22,7 @@ abstract class MoviesBaseFragment : Fragment(R.layout.fragment_movies) {
 
             refresh.isRefreshing = true
             refresh.setOnRefreshListener {
-                requestDataSource()
+                requestDataSource(true)
             }
 
             recyclerView.addItemDecoration(SpaceItemDecoration(view.context))
@@ -30,7 +30,7 @@ abstract class MoviesBaseFragment : Fragment(R.layout.fragment_movies) {
             setAdapter(recyclerView)
         }
 
-        requestDataSource()
+        requestDataSource(false)
     }
 
     override fun onDestroyView() {
@@ -40,7 +40,7 @@ abstract class MoviesBaseFragment : Fragment(R.layout.fragment_movies) {
 
     abstract fun setAdapter(recyclerView: RecyclerView)
 
-    abstract fun requestDataSource()
+    abstract fun requestDataSource(force: Boolean)
 
     protected fun onDataSourceLoaded(hasItems: Boolean) {
         binding?.let {
