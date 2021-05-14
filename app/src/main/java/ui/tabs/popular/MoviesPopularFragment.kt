@@ -1,9 +1,11 @@
 package ui.tabs.popular
 
-import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import ui.tabs.base.MoviesBaseFragment
 
 class MoviesPopularFragment : MoviesBaseFragment() {
@@ -13,22 +15,26 @@ class MoviesPopularFragment : MoviesBaseFragment() {
 
     override fun setAdapter(recyclerView: RecyclerView) {
         adapter = MoviesPopularAdapter().apply {
-            this.addLoadStateListener { state ->
-                println("qwerty refresh=${state.refresh}")
-                if (state.refresh == LoadState.Loading) {
-                    binding?.refresh?.isRefreshing = true
-                } else {
-                    binding?.refresh?.isRefreshing = false
-                }
-            }
+            addLoadStateListener(::onStateChanged)
+            val stateAdapter = withLoadStateFooter(MoviesPopularStateAdapter())
+            recyclerView.adapter = ConcatAdapter(this, stateAdapter)
         }
-
-        recyclerView.adapter = adapter
     }
 
     override fun requestDataSource(force: Boolean) {
         adapter?.let {
             viewModel.requestDataSource(force, it)
+        }
+    }
+
+    private fun onStateChanged(state: CombinedLoadStates) {
+        binding?.let {
+            val refreshState = state.refresh
+            if (refreshState is LoadState.Error) {
+                Snackbar.make(it.root, refreshState.error.message.toString(), Snackbar.LENGTH_SHORT).show()
+            }
+
+            it.refresh.isRefreshing = state.refresh == LoadState.Loading
         }
     }
 }

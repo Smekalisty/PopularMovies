@@ -15,7 +15,7 @@ class MovieJsonDeserializer : JsonDeserializer<List<Movie>> {
         val firstTitle = jsonElement[0].asJsonObject?.get("title")
         println("qwerty Loaded from network $size movies, first is $firstTitle")
 
-        Thread.sleep(1 * 1000)
+        Thread.sleep(3 * 1000)
 
         return Gson().fromJson(jsonElement, type)
     }
