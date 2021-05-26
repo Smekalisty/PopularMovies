@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -21,15 +22,13 @@ import com.popularmovies.R
 import com.popularmovies.databinding.FragmentMovieDetailsBinding
 import constants.Constants
 import constants.WebConstants
+import kotlinx.coroutines.*
 import utils.Preference
-import utils.RetrofitManager
-import utils.RxManager
 import utils.Wrap
 import ui.tabs.pojo.Movie
 import ui.tabs.pojo.MovieDetails
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
 import ui.tabs.favorite.MoviesFavoriteViewModel
+import utils.ResultWrapper
 import java.net.UnknownHostException
 
 class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
@@ -37,13 +36,14 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         const val extraMovie = "extraMovie"
     }
 
-    private var disposables = CompositeDisposable()
     private var isFavorite: Boolean? = null
     private var movieDetails: MovieDetails? = null
 
     private var binding: FragmentMovieDetailsBinding? = null
 
-    private val viewModel by activityViewModels<MoviesFavoriteViewModel>()
+    private val favoriteViewModel by activityViewModels<MoviesFavoriteViewModel>()
+
+    private val viewModel by viewModels<MoviesDetailsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,19 +124,16 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         return false
     }
 
-    override fun onDestroy() {
-        disposables.dispose()
-        super.onDestroy()
+    private fun requestDataSource(movie: Movie) {
+        viewModel.requestMovieDetails(movie, ::f) //TODO move from high-order (callback) function to Flow
     }
 
-    private fun requestDataSource(movie: Movie) {
-        val disposable = RetrofitManager()
-            .getWebAPI()
-            .requestMovieDetails(movie.id, WebConstants.apiKey)
-            .compose(RxManager.singleTransformer())
-            .subscribe(::populateBody, ::onError)
-
-        disposables.add(disposable)
+    private fun f(result: ResultWrapper<MovieDetails>) { //TODO move from high-order (callback) function to Flow
+        if (result.payload != null) {
+            populateBody(result.payload)
+        } else {
+            onError(result.error!!)
+        }
     }
 
     //TODO parcelaze to serialize
@@ -194,7 +191,9 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
             .load(url)
             .apply(requestOptions)
             .transition(DrawableTransitionOptions.withCrossFade())
-            .into(binding.poster)
+            .into(binding.poster2)
+
+        //TODO on error - poster2 should be invisible
     }
 
     private fun onError(error: Throwable) {
@@ -208,7 +207,7 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
 
     private fun showMessage(message: String) {
         val view = binding?.root ?: return
-        Snackbar.make(view.findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show()
     }
 
     private fun setupFavorite(id: Int) {
@@ -228,11 +227,10 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
             }
         }
 
-        val disposable = Single.fromCallable { start(id) }
+        //TODO rx to coroutine
+        /*val disposable = Single.fromCallable { start(id) }
             .compose(RxManager.singleTransformer())
-            .subscribe(::onSuccess, ::justError)
-
-        disposables.add(disposable)
+            .subscribe(::onSuccess, ::justError)*/
     }
 
     private fun changeFavorite(context: Context) {
@@ -259,16 +257,15 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
             return favoriteMovies.size to favoritesSize
         }
 
-        val disposable = Single.fromCallable { start(movieDetails) }
+        //TODO rx to coroutine
+        /*Single.fromCallable { start(movieDetails) }
             .compose(RxManager.singleTransformer())
-            .subscribe(::onUpdateFavoritesSuccess, ::justError)
-
-        disposables.add(disposable)
+            .subscribe(::onUpdateFavoritesSuccess, ::justError)*/
     }
 
     private fun onUpdateFavoritesSuccess(pair: Pair<Int, Boolean>) {
-        viewModel.isReloadDataSourceRequired = true
-        viewModel.favoritesSize = pair.first
+        favoriteViewModel.isReloadDataSourceRequired = true
+        favoriteViewModel.favoritesSize = pair.first
         setupOptionsMenu(pair.second)
     }
 
