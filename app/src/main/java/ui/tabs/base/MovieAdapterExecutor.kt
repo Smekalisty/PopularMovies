@@ -37,6 +37,7 @@ class MovieAdapterExecutor {
 
         Glide.with(viewHolder.itemView)
             .load(url)
+            .timeout(10000)
             .apply(requestOptions)
             .into(viewHolder.backdrop)
 
