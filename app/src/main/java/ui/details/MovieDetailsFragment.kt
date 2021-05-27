@@ -13,6 +13,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -24,7 +25,6 @@ import constants.Constants
 import constants.WebConstants
 import kotlinx.coroutines.*
 import utils.Preference
-import utils.Wrap
 import ui.tabs.pojo.Movie
 import ui.tabs.pojo.MovieDetails
 import ui.tabs.favorite.MoviesFavoriteViewModel
@@ -136,7 +136,7 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         }
     }
 
-    //TODO parcelaze to serialize
+    //TODO parcelize to serialize
 
     private fun populateHead(movie: Movie) {
         activity?.title = movie.title
@@ -211,26 +211,24 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
     }
 
     private fun setupFavorite(id: Int) {
-        fun start(id: Int): Wrap<MovieDetails> {
-            val favoriteMovies = Preference.getFavoriteMovies(requireContext())
-            val movieDetails = favoriteMovies.firstOrNull { it.id == id }
-            return Wrap(movieDetails)
-        }
-
-        fun onSuccess(wrap: Wrap<MovieDetails>) {
-            if (this.movieDetails == null) {
-                this.movieDetails = wrap.data
+        lifecycleScope.launch {
+            val favoriteMovie = withContext(Dispatchers.IO) {
+                try {
+                    val favoriteMovies = Preference.getFavoriteMovies(requireContext())
+                    favoriteMovies.firstOrNull { it.id == id }
+                } catch (e: Exception) {
+                    null
+                }
             }
 
-            if (this.movieDetails != null) {
-                setupOptionsMenu(wrap.data != null)
+            if (movieDetails == null) {
+                movieDetails = favoriteMovie
+            }
+
+            if (movieDetails != null) {
+                setupOptionsMenu(favoriteMovie != null)
             }
         }
-
-        //TODO rx to coroutine
-        /*val disposable = Single.fromCallable { start(id) }
-            .compose(RxManager.singleTransformer())
-            .subscribe(::onSuccess, ::justError)*/
     }
 
     private fun changeFavorite(context: Context) {
@@ -240,41 +238,33 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
             return
         }
 
-        fun start(movieDetails: MovieDetails): Pair<Int, Boolean> {
-            val favoriteMovies = Preference.getFavoriteMovies(context)
-            val result = favoriteMovies.firstOrNull { it.id == movieDetails.id }
+        lifecycleScope.launch {
+            val result: Pair<Int, Boolean> = withContext(Dispatchers.IO) {
+                val favoriteMovies = Preference.getFavoriteMovies(context)
+                val result = favoriteMovies.firstOrNull { it.id == movieDetails.id }
 
-            val favoritesSize = if (result == null) {
-                favoriteMovies.add(movieDetails)
-                Preference.setFavoriteMovies(context, favoriteMovies)
-                true
-            } else {
-                favoriteMovies.remove(result)
-                Preference.setFavoriteMovies(context, favoriteMovies)
-                false
+                val favoritesSize = if (result == null) {
+                    favoriteMovies.add(movieDetails)
+                    Preference.setFavoriteMovies(context, favoriteMovies)
+                    true
+                } else {
+                    favoriteMovies.remove(result)
+                    Preference.setFavoriteMovies(context, favoriteMovies)
+                    false
+                }
+
+                favoriteMovies.size to favoritesSize
             }
 
-            return favoriteMovies.size to favoritesSize
+            favoriteViewModel.isReloadDataSourceRequired = true
+            favoriteViewModel.favoritesSize = result.first
+
+            setupOptionsMenu(result.second)
         }
-
-        //TODO rx to coroutine
-        /*Single.fromCallable { start(movieDetails) }
-            .compose(RxManager.singleTransformer())
-            .subscribe(::onUpdateFavoritesSuccess, ::justError)*/
-    }
-
-    private fun onUpdateFavoritesSuccess(pair: Pair<Int, Boolean>) {
-        favoriteViewModel.isReloadDataSourceRequired = true
-        favoriteViewModel.favoritesSize = pair.first
-        setupOptionsMenu(pair.second)
     }
 
     private fun setupOptionsMenu(isFavorite: Boolean) {
         this.isFavorite = isFavorite
         requireActivity().invalidateOptionsMenu()
-    }
-
-    private fun justError(error: Throwable) {
-        error.printStackTrace()
     }
 }

@@ -4,6 +4,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import ui.tabs.pojo.MovieDetails
 import ui.tabs.base.MoviesBaseFragment
+import utils.ResultWrapper
 
 class MoviesFavoriteFragment : MoviesBaseFragment() {
     private val viewModel by activityViewModels<MoviesFavoriteViewModel>()
@@ -20,22 +21,26 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
         when {
             viewModel.isReloadDataSourceRequired -> {
                 viewModel.isReloadDataSourceRequired = false
-                viewModel.requestDataSource(::onDataSourceLoaded, ::onError)
+                viewModel.requestDataSource(::onDataSourceLoaded)
             }
             viewModel.dataSource == null -> {
-                viewModel.requestDataSource(::onDataSourceLoaded, ::onError)
+                viewModel.requestDataSource(::onDataSourceLoaded)
             }
             else -> {
-                onDataSourceLoaded(viewModel.dataSource!!)
+                onDataSourceLoaded(ResultWrapper(viewModel.dataSource!!, null))
             }
         }
     }
 
     //TODO сохрянять dataSource в view model-e а не тут
 
-    private fun onDataSourceLoaded(dataSource: MutableList<MovieDetails>) {
-        viewModel.dataSource = dataSource
-        onDataSourceLoaded(dataSource.isNotEmpty())
-        adapter?.submitList(dataSource)
+    private fun onDataSourceLoaded(result: ResultWrapper<MutableList<MovieDetails>>) {
+        if (result.payload == null) {
+            onError(result.error!!)
+        } else {
+            viewModel.dataSource = result.payload
+            onDataSourceLoaded(result.payload.isNotEmpty())
+            adapter?.submitList(result.payload)
+        }
     }
 }
