@@ -21,24 +21,21 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
         when {
             viewModel.isReloadDataSourceRequired -> {
                 viewModel.isReloadDataSourceRequired = false
-                viewModel.requestDataSource(::onDataSourceLoaded)
+                viewModel.requestDataSource(::onRequestDataSourceDone)
             }
             viewModel.dataSource == null -> {
-                viewModel.requestDataSource(::onDataSourceLoaded)
+                viewModel.requestDataSource(::onRequestDataSourceDone)
             }
             else -> {
-                onDataSourceLoaded(ResultWrapper(viewModel.dataSource!!, null))
+                onRequestDataSourceDone(ResultWrapper(viewModel.dataSource!!, null))
             }
         }
     }
 
-    //TODO сохрянять dataSource в view model-e а не тут
-
-    private fun onDataSourceLoaded(result: ResultWrapper<MutableList<MovieDetails>>) {
+    private fun onRequestDataSourceDone(result: ResultWrapper<MutableList<MovieDetails>>) {
         if (result.payload == null) {
             onError(result.error!!)
         } else {
-            viewModel.dataSource = result.payload
             onDataSourceLoaded(result.payload.isNotEmpty())
             adapter?.submitList(result.payload)
         }

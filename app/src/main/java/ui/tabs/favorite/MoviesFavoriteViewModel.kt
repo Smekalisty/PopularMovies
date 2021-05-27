@@ -27,6 +27,10 @@ class MoviesFavoriteViewModel(application: Application) : AndroidViewModel(appli
                 }
             }
 
+            if (result.payload != null) {
+                dataSource = result.payload
+            }
+
             callback(result)
         }
     }
