@@ -1,10 +1,14 @@
 package ui.tabs.favorite
 
+import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import ui.tabs.pojo.MovieDetails
 import ui.tabs.base.MoviesBaseFragment
-import utils.ResultWrapper
 
 class MoviesFavoriteFragment : MoviesBaseFragment() {
     private val viewModel by activityViewModels<MoviesFavoriteViewModel>()
@@ -17,27 +21,37 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
         recyclerView.adapter = adapter
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        lifecycleScope.launchWhenCreated {
+            viewModel.flow
+                .onEach(::requestDataSourceDone)
+                .collect()
+        }
+
+        super.onViewCreated(view, savedInstanceState)
+    }
+
     override fun requestDataSource(force: Boolean) {
         when {
             viewModel.isReloadDataSourceRequired -> {
                 viewModel.isReloadDataSourceRequired = false
-                viewModel.requestDataSource(::onRequestDataSourceDone)
+                viewModel.requestDataSource()
             }
             viewModel.dataSource == null -> {
-                viewModel.requestDataSource(::onRequestDataSourceDone)
+                viewModel.requestDataSource()
             }
             else -> {
-                onRequestDataSourceDone(ResultWrapper(viewModel.dataSource!!, null))
+                requestDataSourceSuccess(viewModel.dataSource!!)
             }
         }
     }
 
-    private fun onRequestDataSourceDone(result: ResultWrapper<MutableList<MovieDetails>>) {
-        if (result.payload == null) {
-            onError(result.error!!)
-        } else {
-            onDataSourceLoaded(result.payload.isNotEmpty())
-            adapter?.submitList(result.payload)
-        }
+    private fun requestDataSourceDone(result: Result<MutableList<MovieDetails>>) {
+        result.fold(::requestDataSourceSuccess, ::onError)
+    }
+
+    private fun requestDataSourceSuccess(dataSource: MutableList<MovieDetails>) {
+        onDataSourceLoaded(dataSource.isNotEmpty())
+        adapter?.submitList(dataSource)
     }
 }

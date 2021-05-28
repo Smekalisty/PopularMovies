@@ -24,11 +24,12 @@ import com.popularmovies.databinding.FragmentMovieDetailsBinding
 import constants.Constants
 import constants.WebConstants
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import utils.Preference
 import ui.tabs.pojo.Movie
 import ui.tabs.pojo.MovieDetails
 import ui.tabs.favorite.MoviesFavoriteViewModel
-import utils.ResultWrapper
 import java.net.UnknownHostException
 
 class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
@@ -72,7 +73,15 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         if (movie is Movie) {
             transition(movie, view)
             populateHead(movie)
-            requestDataSource(movie)
+
+            lifecycleScope.launchWhenCreated {
+                viewModel.flow
+                    .onEach(::requestDataSourceDone)
+                    .collect()
+            }
+
+            viewModel.requestDataSource(movie)
+
             setupFavorite(movie.id)
             return
         }
@@ -86,9 +95,12 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
     }
 
     private fun transition(movie: Movie, view: View) {
-        val poster1 = binding?.poster1 ?: return
-
         view.transitionName = "${Constants.transitionName}${movie.id}"
+        loadPosterLandscape(movie)
+    }
+
+    private fun loadPosterLandscape(movie: Movie) {
+        val posterLandscape = binding?.posterLandscape ?: return
 
         val requestOptions = RequestOptions()
             .centerCrop()
@@ -99,7 +111,7 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         Glide.with(this)
             .load(url)
             .apply(requestOptions)
-            .into(poster1)
+            .into(posterLandscape)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -124,16 +136,8 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         return false
     }
 
-    private fun requestDataSource(movie: Movie) {
-        viewModel.requestMovieDetails(movie, ::f) //TODO move from high-order (callback) function to Flow
-    }
-
-    private fun f(result: ResultWrapper<MovieDetails>) { //TODO move from high-order (callback) function to Flow
-        if (result.payload != null) {
-            populateBody(result.payload)
-        } else {
-            onError(result.error!!)
-        }
+    private fun requestDataSourceDone(result: Result<MovieDetails>) {
+        result.fold(::populateBody, ::onError)
     }
 
     //TODO parcelize to serialize
@@ -155,6 +159,8 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         this.movieDetails = movieDetails
 
         setupFavorite(movieDetails.id)
+
+        loadPosterLandscape(movieDetails)
 
         populateHead(movieDetails)
 
@@ -191,9 +197,9 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
             .load(url)
             .apply(requestOptions)
             .transition(DrawableTransitionOptions.withCrossFade())
-            .into(binding.poster2)
+            .into(binding.posterPortrait)
 
-        //TODO on error - poster2 should be invisible
+        //TODO on error - posterPortrait should be invisible
     }
 
     private fun onError(error: Throwable) {

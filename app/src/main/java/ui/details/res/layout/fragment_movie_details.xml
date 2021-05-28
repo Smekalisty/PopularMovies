@@ -9,7 +9,7 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/poster1"
+            android:id="@+id/posterLandscape"
             android:layout_width="0dp"
             android:layout_height="192dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -21,12 +21,12 @@
             android:layout_height="192dp"
             android:layout_marginEnd="16dp"
             android:background="?attr/colorPrimaryVariant"
-            app:layout_constraintBottom_toBottomOf="@+id/poster1"
+            app:layout_constraintBottom_toBottomOf="@+id/posterLandscape"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/poster1">
+            app:layout_constraintTop_toBottomOf="@+id/posterLandscape">
 
             <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/poster2"
+                android:id="@+id/posterPortrait"
                 android:layout_width="124dp"
                 android:layout_height="188dp"
                 android:layout_centerInParent="true" />
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/default_margin"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            app:layout_constraintTop_toBottomOf="@+id/poster1"
+            app:layout_constraintTop_toBottomOf="@+id/posterLandscape"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
