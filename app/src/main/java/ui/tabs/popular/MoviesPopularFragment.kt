@@ -1,9 +1,11 @@
 package ui.tabs.popular
 
+import android.view.ViewTreeObserver
 import androidx.fragment.app.viewModels
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ui.tabs.base.MoviesBaseFragment
@@ -18,6 +20,21 @@ class MoviesPopularFragment : MoviesBaseFragment() {
             addLoadStateListener(::onStateChanged)
             val stateAdapter = withLoadStateFooter(MoviesPopularStateAdapter())
             recyclerView.adapter = ConcatAdapter(this, stateAdapter)
+        }
+
+        if (viewModel.runAnimationOnce) {
+            viewModel.runAnimationOnce = false
+            adapter?.canAnimate = true
+            recyclerView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    val lastPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+                    if (lastPosition > 0) {
+                        adapter?.canAnimate = false
+                        recyclerView.viewTreeObserver.removeOnPreDrawListener(this)
+                    }
+                    return true
+                }
+            })
         }
     }
 
