@@ -18,8 +18,6 @@ import ui.tabs.popular.entities.MoviesDataSource
 import utils.RetrofitManager
 
 class MoviesPopularViewModel : ViewModel() {
-    var runAnimationOnce = true
-
     private val backendService: BackendService
 
     private var flowDataSource: Flow<PagingData<Movie>>
