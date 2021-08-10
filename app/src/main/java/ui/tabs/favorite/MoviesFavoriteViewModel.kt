@@ -3,30 +3,33 @@ package ui.tabs.favorite
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import database.DBManager
+import database.master.Movie
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import utils.Preference
-import ui.tabs.pojo.MovieDetails
 
 class MoviesFavoriteViewModel(application: Application) : AndroidViewModel(application) {
     var isReloadDataSourceRequired = false
     var favoritesSize = 0
 
     //TODO save inside flow like padding??? cacheIn
-    var dataSource: MutableList<MovieDetails>? = null
+    var dataSource: List<Movie>? = null
 
-    private val mutableFlow = MutableSharedFlow<Result<MutableList<MovieDetails>>>()
-    val flow: SharedFlow<Result<MutableList<MovieDetails>>> = mutableFlow.asSharedFlow()
+    private val mutableFlow = MutableSharedFlow<Result<List<Movie>>>()
+    val flow: SharedFlow<Result<List<Movie>>> = mutableFlow.asSharedFlow()
 
     fun requestDataSource() {
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 try {
-                    val favoriteMovies = Preference.getFavoriteMovies(getApplication())
+                    val favoriteMovies = DBManager.getInstance(getApplication())
+                        .moviesDao()
+                        .getAll()
+
                     Result.success(favoriteMovies)
                 } catch (e: Exception) {
                     Result.failure(e)

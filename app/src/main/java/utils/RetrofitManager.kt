@@ -1,24 +1,34 @@
 package utils
 
-import com.google.gson.Gson
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import contracts.BackendService
 import constants.WebConstants
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
-class RetrofitManager {
-    fun getWebAPI(gson: Gson? = null): BackendService { //TODO singleton
-        val converterFactory = if (gson == null) {
-            GsonConverterFactory.create()
-        } else {
-            GsonConverterFactory.create(gson)
-        }
+object RetrofitManager {
+    val backendService: BackendService
+
+    init {
+        val contentType = "application/json".toMediaType()
+
+        val converterFactory = Json {
+            prettyPrint = true
+            ignoreUnknownKeys = true
+        }.asConverterFactory(contentType)
 
         val retrofit = Retrofit.Builder()
             .baseUrl(WebConstants.url)
             .addConverterFactory(converterFactory)
             .build()
 
-        return retrofit.create(BackendService::class.java)
+        backendService = retrofit.create(BackendService::class.java)
     }
 }
+
+//TODO rename java folder (root folder) to kotlin folder
+
+//TODO progress bar on details
+//TODO MVI
+// загрузить 1 страницу откл инет и вклю обратано

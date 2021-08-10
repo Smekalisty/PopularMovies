@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
 import android.transition.TransitionInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -23,12 +22,14 @@ import com.popularmovies.R
 import com.popularmovies.databinding.FragmentMovieDetailsBinding
 import constants.Constants
 import constants.WebConstants
-import kotlinx.coroutines.*
+import database.DBManager
+import database.details.MovieDetails
+import database.master.Movie
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import utils.Preference
-import ui.tabs.pojo.Movie
-import ui.tabs.pojo.MovieDetails
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ui.tabs.favorite.MoviesFavoriteViewModel
 import java.net.UnknownHostException
 
@@ -38,12 +39,12 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
     }
 
     private var isFavorite: Boolean? = null
+    private var movie: Movie? = null
     private var movieDetails: MovieDetails? = null
 
     private var binding: FragmentMovieDetailsBinding? = null
 
     private val favoriteViewModel by activityViewModels<MoviesFavoriteViewModel>()
-
     private val viewModel by viewModels<MoviesDetailsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,30 +64,27 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
             homepage.visibility = View.GONE
         }
 
-        val movie = arguments?.getParcelable<Parcelable>(extraMovie)
-        if (movie is MovieDetails) {
-            transition(movie, view)
-            populateBody(movie)
+        val movie = arguments?.getParcelable<Movie>(extraMovie)?.also {
+            movie = it
+        }
+
+        if (movie == null) {
+            showMessage(getString(R.string.an_error_has_occurred))
             return
         }
 
-        if (movie is Movie) {
-            transition(movie, view)
-            populateHead(movie)
+        transition(movie, view)
+        populateHead(movie)
 
-            lifecycleScope.launchWhenCreated {
-                viewModel.flow
-                    .onEach(::requestDataSourceDone)
-                    .collect()
-            }
-
-            viewModel.requestDataSource(movie)
-
-            setupFavorite(movie.id)
-            return
+        lifecycleScope.launchWhenCreated {
+            viewModel.flow
+                .onEach(::requestDataSourceDone)
+                .collect()
         }
 
-        showMessage(getString(R.string.an_error_has_occurred))
+        viewModel.requestDataSource(movie)
+
+        setupFavorite(movie.id)
     }
 
     override fun onDestroyView() {
@@ -96,10 +94,7 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
 
     private fun transition(movie: Movie, view: View) {
         view.transitionName = "${Constants.transitionName}${movie.id}"
-        loadPosterLandscape(movie)
-    }
 
-    private fun loadPosterLandscape(movie: Movie) {
         val posterLandscape = binding?.posterLandscape ?: return
 
         val requestOptions = RequestOptions()
@@ -140,8 +135,6 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         result.fold(::populateBody, ::onError)
     }
 
-    //TODO parcelize to serialize
-
     private fun populateHead(movie: Movie) {
         activity?.title = movie.title
 
@@ -159,10 +152,6 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         this.movieDetails = movieDetails
 
         setupFavorite(movieDetails.id)
-
-        loadPosterLandscape(movieDetails)
-
-        populateHead(movieDetails)
 
         if (movieDetails.tagLine.isNotEmpty()) {
             binding.tagLine.visibility = View.VISIBLE
@@ -220,8 +209,11 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
         lifecycleScope.launch {
             val favoriteMovie = withContext(Dispatchers.IO) {
                 try {
-                    val favoriteMovies = Preference.getFavoriteMovies(requireContext())
-                    favoriteMovies.firstOrNull { it.id == id }
+                    val movieDetails = DBManager.getInstance(requireContext())
+                        .movieDetailsDao()
+                        .getMovieDetails(id)
+
+                    movieDetails
                 } catch (e: Exception) {
                     null
                 }
@@ -238,6 +230,12 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
     }
 
     private fun changeFavorite(context: Context) {
+        val movie = movie
+        if (movie == null) {
+            showMessage(getString(R.string.movie_page_has_not_loaded_yet))
+            return
+        }
+
         val movieDetails = movieDetails
         if (movieDetails == null) {
             showMessage(getString(R.string.movie_page_has_not_loaded_yet))
@@ -246,20 +244,25 @@ class MovieDetailsFragment : Fragment(R.layout.fragment_movie_details) {
 
         lifecycleScope.launch {
             val result: Pair<Int, Boolean> = withContext(Dispatchers.IO) {
-                val favoriteMovies = Preference.getFavoriteMovies(context)
-                val result = favoriteMovies.firstOrNull { it.id == movieDetails.id }
+                val moviesDao = DBManager.getInstance(context)
+                    .moviesDao()
 
-                val favoritesSize = if (result == null) {
-                    favoriteMovies.add(movieDetails)
-                    Preference.setFavoriteMovies(context, favoriteMovies)
+                val movieDetailsDao = DBManager.getInstance(context)
+                    .movieDetailsDao()
+
+                val theMovie = moviesDao.getMovie(movie.id)
+                val isFavorite = if (theMovie == null) {
+                    moviesDao.insert(movie)
+                    movieDetailsDao.insert(movieDetails)
                     true
                 } else {
-                    favoriteMovies.remove(result)
-                    Preference.setFavoriteMovies(context, favoriteMovies)
+                    moviesDao.delete(movie)
+                    movieDetailsDao.delete(movieDetails)
                     false
                 }
 
-                favoriteMovies.size to favoritesSize
+                val favoritesSize = moviesDao.count()
+                favoritesSize to isFavorite
             }
 
             favoriteViewModel.isReloadDataSourceRequired = true

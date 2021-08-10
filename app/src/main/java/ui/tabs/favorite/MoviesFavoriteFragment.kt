@@ -5,9 +5,9 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import database.master.Movie
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import ui.tabs.pojo.MovieDetails
 import ui.tabs.base.MoviesBaseFragment
 
 class MoviesFavoriteFragment : MoviesBaseFragment() {
@@ -46,11 +46,11 @@ class MoviesFavoriteFragment : MoviesBaseFragment() {
         }
     }
 
-    private fun requestDataSourceDone(result: Result<MutableList<MovieDetails>>) {
+    private fun requestDataSourceDone(result: Result<List<Movie>>) {
         result.fold(::requestDataSourceSuccess, ::onError)
     }
 
-    private fun requestDataSourceSuccess(dataSource: MutableList<MovieDetails>) {
+    private fun requestDataSourceSuccess(dataSource: List<Movie>) {
         onDataSourceLoaded(dataSource.isNotEmpty())
         adapter?.submitList(dataSource)
     }

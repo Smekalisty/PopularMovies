@@ -3,12 +3,12 @@ package ui.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import constants.WebConstants
+import database.details.MovieDetails
+import database.master.Movie
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ui.tabs.pojo.Movie
-import ui.tabs.pojo.MovieDetails
 import utils.RetrofitManager
 
 class MoviesDetailsViewModel : ViewModel() {
@@ -25,11 +25,18 @@ class MoviesDetailsViewModel : ViewModel() {
     private suspend fun loadMovieDetails(movie: Movie): Result<MovieDetails> {
         return withContext(Dispatchers.IO) {
             try {
-                val movieDetails = RetrofitManager()
-                    .getWebAPI()
-                    .requestMovieDetails(movie.id, WebConstants.apiKey)
+                val movieDetails = RetrofitManager.backendService.requestMovieDetails(movie.id, WebConstants.apiKey)
 
-                Result.success(movieDetails)
+                val movieDetails1 = MovieDetails(
+                    movieDetails.id,
+                    movieDetails.budget,
+                    movieDetails.homepage,
+                    movieDetails.tagLine,
+                    movieDetails.releaseDate,
+                    movieDetails.posterPath
+                ) //TODO refactor
+
+                Result.success(movieDetails1)
             } catch (e: Exception) {
                 Result.failure(e)
             }

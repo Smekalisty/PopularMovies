@@ -3,7 +3,6 @@ package ui.tabs.popular
 import androidx.fragment.app.viewModels
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ui.tabs.base.MoviesBaseFragment
@@ -16,8 +15,8 @@ class MoviesPopularFragment : MoviesBaseFragment() {
     override fun setAdapter(recyclerView: RecyclerView) {
         adapter = MoviesPopularAdapter().apply {
             addLoadStateListener(::onStateChanged)
-            val stateAdapter = withLoadStateFooter(MoviesPopularStateAdapter())
-            recyclerView.adapter = ConcatAdapter(this, stateAdapter)
+            val concatAdapter = withLoadStateFooter(MoviesPopularStateAdapter())
+            recyclerView.adapter = concatAdapter
         }
     }
 
@@ -28,13 +27,15 @@ class MoviesPopularFragment : MoviesBaseFragment() {
     }
 
     private fun onStateChanged(state: CombinedLoadStates) {
-        binding?.let {
-            val refreshState = state.refresh
-            if (refreshState is LoadState.Error) {
-                Snackbar.make(it.root, refreshState.error.message.toString(), Snackbar.LENGTH_SHORT).show()
-            }
+        binding?.let { binding ->
+            binding.root.post {
+                val refreshState = state.refresh
+                if (refreshState is LoadState.Error) {
+                    Snackbar.make(binding.root, refreshState.error.message.toString(), Snackbar.LENGTH_SHORT).show()
+                }
 
-            it.refresh.isRefreshing = state.refresh == LoadState.Loading
+                binding.refresh.isRefreshing = state.refresh == LoadState.Loading
+            }
         }
     }
 }
