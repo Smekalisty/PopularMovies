@@ -13,6 +13,6 @@ class MoviesFavoriteAdapter : ListAdapter<Movie, ViewHolder>(MovieFavoriteDiff()
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val movie = getItem(position) ?: return
-        viewHolder.onBindViewHolder(movie, position)
+        viewHolder.onBindViewHolder(movie)
     }
 }

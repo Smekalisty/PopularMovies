@@ -24,6 +24,7 @@ class MoviesDataSource : PagingSource<Int, Movie>() {
             LoadResult.Page(newResults, null, page + 1)
         } catch (e: Exception) {
             LoadResult.Error(e)
+            //TODO java.security.cert.CertificateException: Chain validation failed - emulator cold boot now. This is because datetime wrong
         }
     }
 }

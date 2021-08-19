@@ -30,18 +30,13 @@ class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         }
     }
 
-    //TODO delete
-    private val number: MaterialTextView = view.findViewById(R.id.number)
-
     private val backdrop: ShapeableImageView = view.findViewById(R.id.backdrop)
     private val title: MaterialTextView = view.findViewById(R.id.title)
     private val overview: MaterialTextView = view.findViewById(R.id.overview)
     private val voteCount: MaterialTextView = view.findViewById(R.id.voteCount)
     private val voteAverage: RatingBar = view.findViewById(R.id.voteAverage)
 
-    fun onBindViewHolder(movie: Movie, position: Int) {
-        number.text = position.toString()
-
+    fun onBindViewHolder(movie: Movie) {
         val context = itemView.context
 
         val placeHolder = Utils.generatePastelDrawable(movie.title)
